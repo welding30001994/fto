@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analizador de Retrocesos Fibonacci</title>
+    <title>Analizador Fibonacci con Cámara</title>
     <style>
         :root {
             --primary: #0a0e17;
@@ -13,6 +13,7 @@
             --text: #e0e0e0;
             --success: #00ff9d;
             --warning: #ffcc00;
+            --danger: #ff6b6b;
         }
         
         * {
@@ -30,12 +31,12 @@
             background-image: 
                 radial-gradient(circle at 15% 50%, rgba(0, 212, 255, 0.03) 0%, transparent 25%),
                 radial-gradient(circle at 85% 30%, rgba(0, 212, 255, 0.03) 0%, transparent 25%);
+            padding: 20px;
         }
         
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
         }
         
         header {
@@ -104,7 +105,7 @@
             gap: 15px;
         }
         
-        .canvas-container {
+        .camera-container {
             position: relative;
             width: 100%;
             height: 300px;
@@ -112,13 +113,34 @@
             border-radius: 10px;
             overflow: hidden;
             background: rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
-        canvas {
+        #videoElement, #canvasElement {
+            position: absolute;
             width: 100%;
             height: 100%;
-            display: block;
-            cursor: crosshair;
+            object-fit: contain;
+            top: 0;
+            left: 0;
+        }
+        
+        #canvasElement {
+            z-index: 2;
+            pointer-events: none;
+        }
+        
+        .camera-placeholder {
+            text-align: center;
+            color: rgba(224, 224, 224, 0.5);
+        }
+        
+        .camera-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
         }
         
         .btn {
@@ -143,6 +165,22 @@
             box-shadow: 0 5px 15px rgba(0, 212, 255, 0.4);
         }
         
+        .btn-camera {
+            background: linear-gradient(90deg, var(--success), #00cc88);
+        }
+        
+        .btn-camera:hover {
+            box-shadow: 0 5px 15px rgba(0, 255, 157, 0.4);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(90deg, var(--danger), #ff9e7b);
+        }
+        
+        .btn-danger:hover {
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+        
         .btn-circular {
             width: 70px;
             height: 70px;
@@ -154,6 +192,7 @@
             font-size: 1.5rem;
             background: linear-gradient(135deg, var(--accent), var(--success));
             animation: pulse 2s infinite;
+            cursor: pointer;
         }
         
         @keyframes pulse {
@@ -184,6 +223,7 @@
         
         .level-value {
             font-weight: bold;
+            color: var(--accent);
         }
         
         .controls {
@@ -208,6 +248,7 @@
             border-radius: 50%;
             transform: translate(-50%, -50%);
             border: 2px solid white;
+            z-index: 3;
         }
         
         .point-a {
@@ -223,6 +264,7 @@
             background: rgba(255, 255, 255, 0.5);
             transform-origin: 0 0;
             height: 2px;
+            z-index: 3;
         }
         
         .fibonacci-lines {
@@ -232,6 +274,7 @@
             top: 0;
             left: 0;
             pointer-events: none;
+            z-index: 1;
         }
         
         .fib-line {
@@ -258,28 +301,43 @@
             color: rgba(224, 224, 224, 0.6);
             font-size: 0.9rem;
         }
+        
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Analizador de Retrocesos Fibonacci</h1>
-            <p class="subtitle">Herramienta avanzada para análisis técnico con niveles Fibonacci</p>
+            <h1>Analizador Fibonacci con Cámara</h1>
+            <p class="subtitle">Toma fotos de gráficos y calcula los retrocesos de Fibonacci al instante</p>
         </header>
         
         <div class="main-content">
             <div class="panel">
-                <h2 class="panel-title">Análisis de Imagen</h2>
+                <h2 class="panel-title">Cámara y Análisis</h2>
                 <div class="camera-section">
-                    <div class="canvas-container">
-                        <canvas id="chartCanvas"></canvas>
+                    <div class="camera-container" id="cameraContainer">
+                        <video id="videoElement" autoplay playsinline class="hidden"></video>
+                        <canvas id="canvasElement"></canvas>
+                        <div class="camera-placeholder" id="cameraPlaceholder">
+                            <p>Haz clic en "Activar Cámara" para comenzar</p>
+                        </div>
                         <div class="fibonacci-lines" id="fibLines"></div>
                     </div>
                     
-                    <input type="file" id="imageUpload" accept="image/*" style="display: none;">
-                    <button class="btn" id="uploadBtn">
-                        <i class="icon">📁</i> Cargar Imagen
-                    </button>
+                    <div class="camera-controls">
+                        <button class="btn btn-camera" id="startCameraBtn">
+                            <i class="icon">📷</i> Activar Cámara
+                        </button>
+                        <button class="btn btn-danger" id="captureBtn" disabled>
+                            <i class="icon">📸</i> Tomar Foto
+                        </button>
+                        <button class="btn" id="resetCameraBtn">
+                            <i class="icon">↺</i> Reiniciar
+                        </button>
+                    </div>
                     
                     <div class="btn-circular" id="analyzeBtn">
                         <i class="icon">✓</i>
@@ -289,7 +347,7 @@
                         <button class="btn invert-btn" id="invertBtn">
                             <i class="icon">↕</i> Invertir Retrocesos
                         </button>
-                        <button class="btn" id="resetBtn">
+                        <button class="btn" id="resetPointsBtn">
                             <i class="icon">↺</i> Reiniciar Puntos
                         </button>
                     </div>
@@ -348,58 +406,133 @@
         </div>
         
         <footer>
-            <p>Analizador Fibonacci Futurista • v1.0</p>
+            <p>Analizador Fibonacci con Cámara • v2.0</p>
         </footer>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Elementos del DOM
-            const canvas = document.getElementById('chartCanvas');
+            const video = document.getElementById('videoElement');
+            const canvas = document.getElementById('canvasElement');
             const ctx = canvas.getContext('2d');
-            const uploadBtn = document.getElementById('uploadBtn');
-            const imageUpload = document.getElementById('imageUpload');
+            const startCameraBtn = document.getElementById('startCameraBtn');
+            const captureBtn = document.getElementById('captureBtn');
+            const resetCameraBtn = document.getElementById('resetCameraBtn');
             const analyzeBtn = document.getElementById('analyzeBtn');
             const invertBtn = document.getElementById('invertBtn');
-            const resetBtn = document.getElementById('resetBtn');
+            const resetPointsBtn = document.getElementById('resetPointsBtn');
+            const cameraPlaceholder = document.getElementById('cameraPlaceholder');
             const fibLines = document.getElementById('fibLines');
             
             // Variables de estado
-            let image = null;
+            let stream = null;
             let pointA = null;
             let pointB = null;
             let isInverted = false;
+            let imageCaptured = false;
             
             // Ajustar tamaño del canvas
             function resizeCanvas() {
                 const container = canvas.parentElement;
                 canvas.width = container.clientWidth;
                 canvas.height = container.clientHeight;
-                if (image) {
+                
+                if (imageCaptured) {
                     drawImage();
                 }
             }
             
-            // Cargar imagen
-            uploadBtn.addEventListener('click', () => {
-                imageUpload.click();
+            // Activar la cámara
+            startCameraBtn.addEventListener('click', async () => {
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { facingMode: 'environment' } 
+                    });
+                    video.srcObject = stream;
+                    video.classList.remove('hidden');
+                    cameraPlaceholder.classList.add('hidden');
+                    captureBtn.disabled = false;
+                    startCameraBtn.disabled = true;
+                    
+                    video.addEventListener('loadedmetadata', () => {
+                        resizeCanvas();
+                    });
+                } catch (err) {
+                    alert('Error al acceder a la cámara: ' + err.message);
+                    console.error('Error al acceder a la cámara:', err);
+                }
             });
             
-            imageUpload.addEventListener('change', (e) => {
-                if (e.target.files && e.target.files[0]) {
-                    const reader = new FileReader();
-                    reader.onload = function(event) {
-                        image = new Image();
-                        image.onload = function() {
-                            resizeCanvas();
-                            drawImage();
-                        };
-                        image.src = event.target.result;
-                    };
-                    reader.readAsDataURL(e.target.files[0]);
+            // Tomar foto
+            captureBtn.addEventListener('click', () => {
+                if (stream) {
+                    const container = canvas.parentElement;
+                    const width = container.clientWidth;
+                    const height = container.clientHeight;
+                    
+                    // Detener la cámara
+                    stream.getTracks().forEach(track => track.stop());
+                    video.classList.add('hidden');
+                    
+                    // Dibujar la imagen en el canvas
+                    ctx.drawImage(video, 0, 0, width, height);
+                    imageCaptured = true;
+                    
+                    // Limpiar puntos anteriores
                     pointA = null;
                     pointB = null;
                     clearFibonacciLines();
+                    
+                    // Actualizar interfaz
+                    captureBtn.disabled = true;
+                    startCameraBtn.disabled = false;
+                }
+            });
+            
+            // Reiniciar cámara
+            resetCameraBtn.addEventListener('click', () => {
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                }
+                
+                video.srcObject = null;
+                video.classList.add('hidden');
+                cameraPlaceholder.classList.remove('hidden');
+                
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                imageCaptured = false;
+                
+                pointA = null;
+                pointB = null;
+                clearFibonacciLines();
+                resetLevelsDisplay();
+                
+                captureBtn.disabled = true;
+                startCameraBtn.disabled = false;
+            });
+            
+            // Manejar clics en el canvas
+            canvas.addEventListener('click', (e) => {
+                if (!imageCaptured) return;
+                
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                if (!pointA) {
+                    pointA = { x, y };
+                    drawPoint(pointA, '#00d4ff');
+                } else if (!pointB) {
+                    pointB = { x, y };
+                    drawPoint(pointB, '#00ff9d');
+                    drawLineBetweenPoints(pointA, pointB);
+                    calculateFibonacciLevels();
+                } else {
+                    // Si ya hay dos puntos, reiniciar con nuevo punto A
+                    pointA = { x, y };
+                    pointB = null;
+                    drawImage();
                 }
             });
             
@@ -411,15 +544,6 @@
                 
                 // Limpiar canvas
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
-                // Calcular dimensiones para mantener la relación de aspecto
-                const ratio = Math.min(width / image.width, height / image.height);
-                const drawWidth = image.width * ratio;
-                const drawHeight = image.height * ratio;
-                const x = (width - drawWidth) / 2;
-                const y = (height - drawHeight) / 2;
-                
-                ctx.drawImage(image, x, y, drawWidth, drawHeight);
                 
                 // Redibujar puntos si existen
                 if (pointA) {
@@ -454,30 +578,6 @@
                 ctx.lineWidth = 2;
                 ctx.stroke();
             }
-            
-            // Manejar clics en el canvas
-            canvas.addEventListener('click', (e) => {
-                if (!image) return;
-                
-                const rect = canvas.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                
-                if (!pointA) {
-                    pointA = { x, y };
-                    drawPoint(pointA, '#00d4ff');
-                } else if (!pointB) {
-                    pointB = { x, y };
-                    drawPoint(pointB, '#00ff9d');
-                    drawLineBetweenPoints(pointA, pointB);
-                    calculateFibonacciLevels();
-                } else {
-                    // Si ya hay dos puntos, reiniciar con nuevo punto A
-                    pointA = { x, y };
-                    pointB = null;
-                    drawImage();
-                }
-            });
             
             // Calcular niveles Fibonacci
             function calculateFibonacciLevels() {
@@ -567,6 +667,13 @@
                 }
             }
             
+            // Reiniciar visualización de niveles
+            function resetLevelsDisplay() {
+                document.querySelectorAll('.level-value').forEach(el => {
+                    el.textContent = '-';
+                });
+            }
+            
             // Botón de análisis
             analyzeBtn.addEventListener('click', () => {
                 if (pointA && pointB) {
@@ -585,16 +692,12 @@
             });
             
             // Reiniciar puntos
-            resetBtn.addEventListener('click', () => {
+            resetPointsBtn.addEventListener('click', () => {
                 pointA = null;
                 pointB = null;
                 clearFibonacciLines();
                 drawImage();
-                
-                // Restablecer valores mostrados
-                document.querySelectorAll('.level-value').forEach(el => {
-                    el.textContent = '-';
-                });
+                resetLevelsDisplay();
             });
             
             // Inicializar
@@ -607,7 +710,7 @@
             ctx.fillStyle = 'rgba(0, 212, 255, 0.2)';
             ctx.font = '16px sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText('Carga una imagen para comenzar', canvas.width / 2, canvas.height / 2);
+            ctx.fillText('Activa la cámara y toma una foto para comenzar', canvas.width / 2, canvas.height / 2);
         });
     </script>
 </body>
