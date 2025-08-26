@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analizador Fibonacci Futurista</title>
+    <style>
+        :root {
+            --primary: #0cf;
+            --secondary: #a64dff;
+            --dark: #121212;
+            --darker: #0a0a0a;
+            --light: #1e1e1e;
+            --text: #ffffff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--darker), var(--dark));
+            color: var(--text);
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            border: 1px solid var(--primary);
+            box-shadow: 0 0 15px rgba(0, 204, 255, 0.5);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 10px rgba(0, 204, 255, 0.5);
+        }
+        
+        .subtitle {
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .panel {
+            background: rgba(30, 30, 30, 0.7);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid var(--secondary);
+            box-shadow: 0 0 15px rgba(166, 77, 255, 0.5);
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 400px;
+            background: var(--darker);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        canvas {
+            width: 100%;
+            height: 100%;
+            background: #080808;
+            border-radius: 10px;
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 204, 255, 0.5);
+        }
+        
+        .switch-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 15px 0;
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #333;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        .levels {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .level-card {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .level-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .level-label {
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+        
+        .fib-extension {
+            border-left-color: var(--secondary);
+        }
+        
+        .fib-extension .level-value {
+            color: var(--secondary);
+        }
+        
+        .trading-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            border-left: 4px solid gold;
+        }
+        
+        .direction-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .bullish {
+            background: linear-gradient(135deg, #00cc00, #00ff00);
+        }
+        
+        .bearish {
+            background: linear-gradient(135deg, #ff3333, #cc0000);
+        }
+        
+        .info-text {
+            margin-bottom: 5px;
+        }
+        
+        .glow {
+            animation: glow 2s infinite alternate;
+        }
+        
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 5px var(--primary), 0 0 10px var(--primary);
+            }
+            to {
+                box-shadow: 0 0 15px var(--primary), 0 0 30px var(--secondary);
+            }
+        }
+        
+        .rotation-control {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .rotation-slider {
+            width: 100%;
+            margin: 10px 0;
+            -webkit-appearance: none;
+            height: 10px;
+            border-radius: 5px;
+            background: #333;
+            outline: none;
+        }
+        
+        .rotation-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+        }
+        
+        .instructions {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Analizador Fibonacci Futurista</h1>
+            <p class="subtitle">Calcula retrocesos y extensiones con precisión</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="panel">
+                <div class="chart-container">
+                    <canvas id="tradingChart"></canvas>
+                </div>
+                
+                <div class="controls">
+                    <button id="takePhotoBtn">Tomar Foto del Mercado</button>
+                    <button id="resetBtn">Reiniciar Puntos</button>
+                </div>
+                
+                <div class="switch-container">
+                    <span style="margin-right: 10px;">Alcista</span>
+                    <label class="switch">
+                        <input type="checkbox" id="directionSwitch">
+                        <span class="slider"></span>
+                    </label>
+                    <span style="margin-left: 10px;">Bajista</span>
+                </div>
+                
+                <div class="rotation-control">
+                    <label for="rotationSlider">Rotar Niveles de Extensión</label>
+                    <input type="range" min="0" max="360" value="0" class="rotation-slider" id="rotationSlider">
+                    <div id="rotationValue">0°</div>
+                </div>
+            </div>
+            
+            <div class="panel">
+                <h2>Niveles de Retroceso Fibonacci</h2>
+                <div class="levels">
+                    <div class="level-card">
+                        <div class="level-value" id="level236">0.00</div>
+                        <div class="level-label">23.6%</div>
+                    </div>
+                    <div class="level-card">
+                        <div class="level-value" id="level382">0.00</div>
+                        <div class="level-label">38.2%</div>
+                    </div>
+                    <div class="level-card">
+                        <div class="level-value" id="level500">0.00</div>
+                        <div class="level-label">50.0%</div>
+                    </div>
+                    <div class="level-card">
+                        <div class="level-value" id="level618">0.00</div>
+                        <div class="level-label">61.8%</div>
+                    </div>
+                    <div class="level-card">
+                        <div class="level-value" id="level786">0.00</div>
+                        <div class="level-label">78.6%</div>
+                    </div>
+                </div>
+                
+                <h2 style="margin-top: 20px;">Extensiones Fibonacci</h2>
+                <div class="levels">
+                    <div class="level-card fib-extension">
+                        <div class="level-value" id="extension1618">0.00</div>
+                        <div class="level-label">161.8%</div>
+                    </div>
+                    <div class="level-card fib-extension">
+                        <div class="level-value" id="extension2618">0.00</div>
+                        <div class="level-label">261.8%</div>
+                    </div>
+                </div>
+                
+                <div class="trading-info">
+                    <div id="directionIndicator" class="direction-badge bullish">TENDENCIA ALCISTA</div>
+                    <p class="info-text">Stop Loss: <span id="stopLossLevel">0.00</span></p>
+                    <p class="info-text">Take Profit: <span id="takeProfitLevel">0.00</span> (161.8%)</p>
+                    <p class="info-text">Operación recomendada: <span id="tradeAction">COMPRAR</span></p>
+                </div>
+                
+                <div class="instructions">
+                    <p><strong>Instrucciones:</strong></p>
+                    <p>1. Haz clic en "Tomar Foto del Mercado" para simular</p>
+                    <p>2. Selecciona dos puntos en el gráfico para calcular los niveles Fibonacci</p>
+                    <p>3. Usa el interruptor para cambiar entre tendencia alcista/bajista</p>
+                    <p>4. Gira el control deslizante para ajustar las extensiones</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const canvas = document.getElementById('tradingChart');
+            const ctx = canvas.getContext('2d');
+            const takePhotoBtn = document.getElementById('takePhotoBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const directionSwitch = document.getElementById('directionSwitch');
+            const rotationSlider = document.getElementById('rotationSlider');
+            const rotationValue = document.getElementById('rotationValue');
+            
+            // Ajustar tamaño del canvas
+            function resizeCanvas() {
+                const container = canvas.parentElement;
+                canvas.width = container.clientWidth;
+                canvas.height = container.clientHeight;
+                drawChart();
+            }
+            
+            // Variables para almacenar los puntos seleccionados
+            let pointA = null;
+            let pointB = null;
+            let isSelecting = false;
+            
+            // Dibujar el gráfico base
+            function drawChart() {
+                const width = canvas.width;
+                const height = canvas.height;
+                
+                // Limpiar el canvas
+                ctx.clearRect(0, 0, width, height);
+                
+                // Dibujar fondo
+                ctx.fillStyle = '#080808';
+                ctx.fillRect(0, 0, width, height);
+                
+                // Dibujar rejilla
+                ctx.strokeStyle = '#222';
+                ctx.lineWidth = 1;
+                
+                // Líneas verticales
+                for (let x = 0; x < width; x += 50) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, height);
+                    ctx.stroke();
+                }
+                
+                // Líneas horizontales
+                for (let y = 0; y < height; y += 50) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(width, y);
+                    ctx.stroke();
+                }
+                
+                // Simular un gráfico de trading
+                ctx.beginPath();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#0cf';
+                
+                const points = [];
+                const baseValue = height / 2;
+                const volatility = height / 10;
+                
+                for (let x = 0; x < width; x += 10) {
+                    const y = baseValue + Math.sin(x / 50) * volatility + 
+                              (Math.random() - 0.5) * volatility * 0.5;
+                    points.push({x, y});
+                    
+                    if (x === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+                
+                ctx.stroke();
+                
+                // Dibujar puntos de selección si existen
+                if (pointA) {
+                    drawPoint(pointA.x, pointA.y, '#00ff00');
+                }
+                
+                if (pointB) {
+                    drawPoint(pointB.x, pointB.y, '#ff0066');
+                }
+                
+                // Si tenemos ambos puntos, dibujar la línea y los niveles Fibonacci
+                if (pointA && pointB) {
+                    drawFibonacciLevels();
+                }
+            }
+            
+            // Dibujar un punto en el gráfico
+            function drawPoint(x, y, color) {
+                ctx.beginPath();
+                ctx.arc(x, y, 6, 0, Math.PI * 2);
+                ctx.fillStyle = color;
+                ctx.fill();
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+            
+            // Calcular y dibujar niveles Fibonacci
+            function drawFibonacciLevels() {
+                const low = Math.min(pointA.y, pointB.y);
+                const high = Math.max(pointA.y, pointB.y);
+                const diff = high - low;
+                
+                // Niveles de retroceso
+                const levels = {
+                    236: high - diff * 0.236,
+                    382: high - diff * 0.382,
+                    500: high - diff * 0.5,
+                    618: high - diff * 0.618,
+                    786: high - diff * 0.786
+                };
+                
+                // Actualizar los valores en la interfaz
+                document.getElementById('level236').textContent = levels[236].toFixed(2);
+                document.getElementById('level382').textContent = levels[382].toFixed(2);
+                document.getElementById('level500').textContent = levels[500].toFixed(2);
+                document.getElementById('level618').textContent = levels[618].toFixed(2);
+                document.getElementById('level786').textContent = levels[786].toFixed(2);
+                
+                // Calcular extensiones
+                const extensionDiff = diff * (rotationSlider.value / 180 + 1);
+                const extension1618 = high + extensionDiff * 0.618;
+                const extension2618 = high + extensionDiff * 1.618;
+                
+                document.getElementById('extension1618').textContent = extension1618.toFixed(2);
+                document.getElementById('extension2618').textContent = extension2618.toFixed(2);
+                
+                // Actualizar información de trading
+                const isBullish = !directionSwitch.checked;
+                document.getElementById('directionIndicator').className = isBullish ? 
+                    'direction-badge bullish' : 'direction-badge bearish';
+                document.getElementById('directionIndicator').textContent = isBullish ? 
+                    'TENDENCIA ALCISTA' : 'TENDENCIA BAJISTA';
+                
+                document.getElementById('stopLossLevel').textContent = isBullish ? 
+                    levels[786].toFixed(2) : levels[236].toFixed(2);
+                document.getElementById('takeProfitLevel').textContent = extension1618.toFixed(2);
+                document.getElementById('tradeAction').textContent = isBullish ? 'COMPRAR' : 'VENDER';
+                
+                // Dibujar líneas de Fibonacci en el gráfico
+                ctx.lineWidth = 1;
+                ctx.setLineDash([5, 3]);
+                
+                // Dibujar niveles de retroceso
+                for (const level in levels) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, levels[level]);
+                    ctx.lineTo(canvas.width, levels[level]);
+                    ctx.strokeStyle = '#ff9900';
+                    ctx.stroke();
+                    
+                    // Etiquetar el nivel
+                    ctx.setLineDash([]);
+                    ctx.fillStyle = '#ff9900';
+                    ctx.fillText(${level}%, canvas.width - 40, levels[level] - 5);
+                    ctx.setLineDash([5, 3]);
+                }
+                
+                // Dibujar extensiones
+                ctx.beginPath();
+                ctx.moveTo(0, extension1618);
+                ctx.lineTo(canvas.width, extension1618);
+                ctx.strokeStyle = '#ff0066';
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(0, extension2618);
+                ctx.lineTo(canvas.width, extension2618);
+                ctx.strokeStyle = '#ff0066';
+                ctx.stroke();
+                
+                // Etiquetar extensiones
+                ctx.setLineDash([]);
+                ctx.fillStyle = '#ff0066';
+                ctx.fillText('161.8%', canvas.width - 50, extension1618 - 5);
+                ctx.fillText('261.8%', canvas.width - 50, extension2618 - 5);
+                ctx.setLineDash([5, 3]);
+                
+                // Dibujar línea entre los puntos seleccionados
+                ctx.beginPath();
+                ctx.moveTo(pointA.x, pointA.y);
+                ctx.lineTo(pointB.x, pointB.y);
+                ctx.strokeStyle = '#00ff00';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([]);
+                ctx.stroke();
+            }
+            
+            // Event listeners
+            takePhotoBtn.addEventListener('click', function() {
+                this.classList.add('glow');
+                setTimeout(() => this.classList.remove('glow'), 2000);
+                
+                // Simular tomar una foto del mercado
+                alert('Foto del mercado tomada. Ahora selecciona dos puntos en el gráfico.');
+                isSelecting = true;
+            });
+            
+            resetBtn.addEventListener('click', function() {
+                pointA = null;
+                pointB = null;
+                drawChart();
+            });
+            
+            directionSwitch.addEventListener('change', function() {
+                if (pointA && pointB) {
+                    drawChart();
+                }
+            });
+            
+            rotationSlider.addEventListener('input', function() {
+                rotationValue.textContent = this.value + '°';
+                if (pointA && pointB) {
+                    drawChart();
+                }
+            });
+            
+            canvas.addEventListener('click', function(e) {
+                if (!isSelecting) return;
+                
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                if (!pointA) {
+                    pointA = {x, y};
+                } else if (!pointB) {
+                    pointB = {x, y};
+                    isSelecting = false;
+                }
+                
+                drawChart();
+            });
+            
+            // Inicializar
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+        });
+    </script>
+</body>
+</html>
