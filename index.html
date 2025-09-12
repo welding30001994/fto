@@ -3,17 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analizador Fibonacci con Cámara</title>
+    <title>Beaver Trading - Estrategias</title>
     <style>
         :root {
-            --primary: #0a0e17;
-            --secondary: #131a2d;
-            --accent: #00d4ff;
-            --accent-dark: #0094c6;
-            --text: #e0e0e0;
-            --success: #00ff9d;
-            --warning: #ffcc00;
-            --danger: #ff6b6b;
+            --primary-color: #0a192f;
+            --secondary-color: #112240;
+            --accent-color: #64ffda;
+            --text-color: #e6f1ff;
+            --light-text: #8892b0;
         }
         
         * {
@@ -24,694 +21,457 @@
         }
         
         body {
-            background-color: var(--primary);
-            color: var(--text);
+            background-color: var(--primary-color);
+            color: var(--text-color);
             min-height: 100vh;
-            overflow-x: hidden;
-            background-image: 
-                radial-gradient(circle at 15% 50%, rgba(0, 212, 255, 0.03) 0%, transparent 25%),
-                radial-gradient(circle at 85% 30%, rgba(0, 212, 255, 0.03) 0%, transparent 25%);
-            padding: 20px;
         }
         
         .container {
             max-width: 1200px;
             margin: 0 auto;
+            padding: 20px;
         }
         
         header {
-            text-align: center;
-            padding: 20px 0;
+            background-color: var(--secondary-color);
+            padding: 20px;
+            border-radius: 10px;
             margin-bottom: 30px;
-            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
         
         h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            background: linear-gradient(90deg, var(--accent), var(--success));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-        
-        .subtitle {
-            color: rgba(224, 224, 224, 0.7);
-            font-size: 1rem;
-        }
-        
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-        }
-        
-        @media (max-width: 900px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        .panel {
-            background: var(--secondary);
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .panel::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 5px;
-            background: linear-gradient(90deg, var(--accent), var(--success));
-        }
-        
-        .panel-title {
-            font-size: 1.3rem;
-            margin-bottom: 20px;
-            color: var(--accent);
-        }
-        
-        .camera-section {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        
-        .camera-container {
-            position: relative;
-            width: 100%;
-            height: 300px;
-            border: 2px dashed rgba(0, 212, 255, 0.3);
-            border-radius: 10px;
-            overflow: hidden;
-            background: rgba(0, 0, 0, 0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        #videoElement, #canvasElement {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            top: 0;
-            left: 0;
-        }
-        
-        #canvasElement {
-            z-index: 2;
-            pointer-events: none;
-        }
-        
-        .camera-placeholder {
+            color: var(--accent-color);
             text-align: center;
-            color: rgba(224, 224, 224, 0.5);
+            margin-bottom: 20px;
         }
         
-        .camera-controls {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
+        .upload-section {
+            background-color: var(--secondary-color);
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--accent-color);
+        }
+        
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            background-color: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            color: var(--text-color);
+            font-size: 16px;
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .file-label {
+            display: block;
+            padding: 15px;
+            background-color: rgba(100, 255, 218, 0.1);
+            border: 2px dashed var(--accent-color);
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .file-label:hover {
+            background-color: rgba(100, 255, 218, 0.2);
         }
         
         .btn {
-            background: linear-gradient(90deg, var(--accent-dark), var(--accent));
-            color: white;
+            background-color: var(--accent-color);
+            color: var(--primary-color);
             border: none;
-            padding: 12px 20px;
-            border-radius: 50px;
+            padding: 12px 25px;
+            border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
             transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            display: inline-block;
         }
         
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.4);
+            box-shadow: 0 5px 15px rgba(100, 255, 218, 0.4);
         }
         
-        .btn-camera {
-            background: linear-gradient(90deg, var(--success), #00cc88);
+        .images-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
         }
         
-        .btn-camera:hover {
-            box-shadow: 0 5px 15px rgba(0, 255, 157, 0.4);
+        .image-card {
+            background-color: var(--secondary-color);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+            position: relative;
         }
         
-        .btn-danger {
-            background: linear-gradient(90deg, var(--danger), #ff9e7b);
+        .image-card:hover {
+            transform: translateY(-5px);
         }
         
-        .btn-danger:hover {
-            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        .image-wrapper {
+            position: relative;
+            height: 200px;
+            overflow: hidden;
         }
         
-        .btn-circular {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            margin: 20px auto;
+        .image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            cursor: move;
+            transition: transform 0.3s ease;
+        }
+        
+        .image-content {
+            padding: 15px;
+        }
+        
+        .image-description {
+            color: var(--light-text);
+            margin-bottom: 15px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .image-actions {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--accent-color);
+            cursor: pointer;
+            font-size: 14px;
             display: flex;
             align-items: center;
+            gap: 5px;
+        }
+        
+        .action-btn:hover {
+            text-decoration: underline;
+        }
+        
+        /* Modal para imagen expandida */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(10, 25, 47, 0.95);
+            z-index: 1000;
             justify-content: center;
-            font-size: 1.5rem;
-            background: linear-gradient(135deg, var(--accent), var(--success));
-            animation: pulse 2s infinite;
+            align-items: center;
+        }
+        
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            position: relative;
+        }
+        
+        .modal-content img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 10px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5);
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            color: white;
+            font-size: 30px;
             cursor: pointer;
+            background: none;
+            border: none;
+        }
+        
+        .drag-over {
+            background-color: rgba(100, 255, 218, 0.3);
+        }
+        
+        /* Estilos para el modo futurista */
+        .glow-effect {
+            box-shadow: 0 0 10px var(--accent-color);
         }
         
         @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(0, 212, 255, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(0, 212, 255, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(0, 212, 255, 0); }
+            0% { box-shadow: 0 0 5px var(--accent-color); }
+            50% { box-shadow: 0 0 20px var(--accent-color); }
+            100% { box-shadow: 0 0 5px var(--accent-color); }
         }
         
-        .levels {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        
-        .level-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 15px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-        
-        .level-item:hover {
-            background: rgba(0, 212, 255, 0.1);
-            transform: translateX(5px);
-        }
-        
-        .level-value {
-            font-weight: bold;
-            color: var(--accent);
-        }
-        
-        .controls {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        
-        .invert-btn {
-            background: linear-gradient(90deg, #ff6b6b, #ff9e7b);
-        }
-        
-        .invert-btn:hover {
-            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
-        }
-        
-        .point-markers {
-            position: absolute;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            border: 2px solid white;
-            z-index: 3;
-        }
-        
-        .point-a {
-            background: var(--accent);
-        }
-        
-        .point-b {
-            background: var(--success);
-        }
-        
-        .line-between {
-            position: absolute;
-            background: rgba(255, 255, 255, 0.5);
-            transform-origin: 0 0;
-            height: 2px;
-            z-index: 3;
-        }
-        
-        .fibonacci-lines {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-            z-index: 1;
-        }
-        
-        .fib-line {
-            position: absolute;
-            width: 100%;
-            height: 2px;
-            left: 0;
-        }
-        
-        .fib-label {
-            position: absolute;
-            right: 5px;
-            transform: translateY(-50%);
-            background: rgba(0, 0, 0, 0.7);
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-        }
-        
-        footer {
-            text-align: center;
-            margin-top: 40px;
-            padding: 20px;
-            color: rgba(224, 224, 224, 0.6);
-            font-size: 0.9rem;
-        }
-        
-        .hidden {
-            display: none;
+        .pulse {
+            animation: pulse 2s infinite;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Analizador Fibonacci con Cámara</h1>
-            <p class="subtitle">Toma fotos de gráficos y calcula los retrocesos de Fibonacci al instante</p>
+            <h1>Beaver Trading - Estrategias</h1>
+            <p>Comparte tus estrategias de trading con la comunidad</p>
         </header>
         
-        <div class="main-content">
-            <div class="panel">
-                <h2 class="panel-title">Cámara y Análisis</h2>
-                <div class="camera-section">
-                    <div class="camera-container" id="cameraContainer">
-                        <video id="videoElement" autoplay playsinline class="hidden"></video>
-                        <canvas id="canvasElement"></canvas>
-                        <div class="camera-placeholder" id="cameraPlaceholder">
-                            <p>Haz clic en "Activar Cámara" para comenzar</p>
-                        </div>
-                        <div class="fibonacci-lines" id="fibLines"></div>
-                    </div>
-                    
-                    <div class="camera-controls">
-                        <button class="btn btn-camera" id="startCameraBtn">
-                            <i class="icon">📷</i> Activar Cámara
-                        </button>
-                        <button class="btn btn-danger" id="captureBtn" disabled>
-                            <i class="icon">📸</i> Tomar Foto
-                        </button>
-                        <button class="btn" id="resetCameraBtn">
-                            <i class="icon">↺</i> Reiniciar
-                        </button>
-                    </div>
-                    
-                    <div class="btn-circular" id="analyzeBtn">
-                        <i class="icon">✓</i>
-                    </div>
-                    
-                    <div class="controls">
-                        <button class="btn invert-btn" id="invertBtn">
-                            <i class="icon">↕</i> Invertir Retrocesos
-                        </button>
-                        <button class="btn" id="resetPointsBtn">
-                            <i class="icon">↺</i> Reiniciar Puntos
-                        </button>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="panel">
-                <h2 class="panel-title">Niveles de Retroceso</h2>
-                <div class="levels">
-                    <div class="level-item">
-                        <span>161.8% (Extensión)</span>
-                        <span class="level-value" id="level-1618">-</span>
-                    </div>
-                    <div class="level-item">
-                        <span>100.0% (Punto B)</span>
-                        <span class="level-value" id="level-100">-</span>
-                    </div>
-                    <div class="level-item">
-                        <span>78.6%</span>
-                        <span class="level-value" id="level-786">-</span>
-                    </div>
-                    <div class="level-item">
-                        <span>61.8%</span>
-                        <span class="level-value" id="level-618">-</span>
-                    </div>
-                    <div class="level-item">
-                        <span>50.0%</span>
-                        <span class="level-value" id="level-500">-</span>
-                    </div>
-                    <div class="level-item">
-                        <span>38.2%</span>
-                        <span class="level-value" id="level-382">-</span>
-                    </div>
-                    <div class="level-item">
-                        <span>23.6%</span>
-                        <span class="level-value" id="level-236">-</span>
-                    </div>
-                    <div class="level-item">
-                        <span>0.0% (Punto A)</span>
-                        <span class="level-value" id="level-0">-</span>
-                    </div>
+        <section class="upload-section">
+            <h2>Publicar Nueva Estrategia</h2>
+            <form id="upload-form">
+                <div class="form-group">
+                    <label for="image-description">Descripción de la estrategia:</label>
+                    <textarea id="image-description" placeholder="Describe tu estrategia, entradas, stops, etc." required></textarea>
                 </div>
                 
-                <h2 class="panel-title" style="margin-top: 30px;">Take Profit & Stop Loss</h2>
-                <div class="levels">
-                    <div class="level-item">
-                        <span>Take Profit (161.8%)</span>
-                        <span class="level-value" id="tp-value">-</span>
-                    </div>
-                    <div class="level-item">
-                        <span>Stop Loss (161.8%)</span>
-                        <span class="level-value" id="sl-value">-</span>
-                    </div>
+                <div class="form-group">
+                    <label for="image-upload" class="file-label" id="file-label">
+                        <span>Haz clic para seleccionar una imagen o arrástrala aquí</span>
+                    </label>
+                    <input type="file" id="image-upload" class="file-input" accept="image/*" required>
                 </div>
-            </div>
-        </div>
+                
+                <button type="submit" class="btn">Publicar Estrategia</button>
+            </form>
+        </section>
         
-        <footer>
-            <p>Analizador Fibonacci con Cámara • v2.0</p>
-        </footer>
+        <section class="images-container" id="images-container">
+            <!-- Las imágenes se mostrarán aquí -->
+        </section>
+    </div>
+    
+    <!-- Modal para imagen expandida -->
+    <div class="modal" id="image-modal">
+        <button class="close-modal" id="close-modal">&times;</button>
+        <div class="modal-content">
+            <img id="expanded-image" src="" alt="Imagen expandida">
+        </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Elementos del DOM
-            const video = document.getElementById('videoElement');
-            const canvas = document.getElementById('canvasElement');
-            const ctx = canvas.getContext('2d');
-            const startCameraBtn = document.getElementById('startCameraBtn');
-            const captureBtn = document.getElementById('captureBtn');
-            const resetCameraBtn = document.getElementById('resetCameraBtn');
-            const analyzeBtn = document.getElementById('analyzeBtn');
-            const invertBtn = document.getElementById('invertBtn');
-            const resetPointsBtn = document.getElementById('resetPointsBtn');
-            const cameraPlaceholder = document.getElementById('cameraPlaceholder');
-            const fibLines = document.getElementById('fibLines');
+        // Inicialización de Firebase (ya proporcionada)
+        const firebaseConfig = {
+            apiKey: "AIzaSyB1Cs2os3tTfrMbYSAmDeJAGnP4tTtsFdw",
+            authDomain: "beaver-trading.firebaseapp.com",
+            databaseURL: "https://beaver-trading-default-rtdb.firebaseio.com",
+            projectId: "beaver-trading",
+            storageBucket: "beaver-trading.firebasestorage.app",
+            messagingSenderId: "926610131904",
+            appId: "1:926610131904:web:c147bd337bd12b4d085625",
+            measurementId: "G-1K51WWF2ZJ"
+        };
+        
+        // Inicializar Firebase (comentado ya que no tenemos los scripts incluidos)
+        // const app = firebase.initializeApp(firebaseConfig);
+        // const analytics = firebase.getAnalytics(app);
+        // const storage = firebase.storage();
+        // const database = firebase.database();
+        
+        // Simulación de almacenamiento (para demostración)
+        let imagesData = JSON.parse(localStorage.getItem('beaverTradingImages')) || [];
+        
+        // Elementos DOM
+        const uploadForm = document.getElementById('upload-form');
+        const imageUpload = document.getElementById('image-upload');
+        const fileLabel = document.getElementById('file-label');
+        const imagesContainer = document.getElementById('images-container');
+        const imageModal = document.getElementById('image-modal');
+        const expandedImage = document.getElementById('expanded-image');
+        const closeModal = document.getElementById('close-modal');
+        
+        // Eventos de arrastrar y soltar
+        fileLabel.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileLabel.classList.add('drag-over');
+        });
+        
+        fileLabel.addEventListener('dragleave', () => {
+            fileLabel.classList.remove('drag-over');
+        });
+        
+        fileLabel.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileLabel.classList.remove('drag-over');
             
-            // Variables de estado
-            let stream = null;
-            let pointA = null;
-            let pointB = null;
-            let isInverted = false;
-            let imageCaptured = false;
+            if (e.dataTransfer.files.length) {
+                imageUpload.files = e.dataTransfer.files;
+                updateFileLabel();
+            }
+        });
+        
+        imageUpload.addEventListener('change', updateFileLabel);
+        
+        function updateFileLabel() {
+            if (imageUpload.files.length) {
+                fileLabel.innerHTML = `<span>Archivo seleccionado: ${imageUpload.files[0].name}</span>`;
+            }
+        }
+        
+        // Enviar formulario
+        uploadForm.addEventListener('submit', (e) => {
+            e.preventDefault();
             
-            // Ajustar tamaño del canvas
-            function resizeCanvas() {
-                const container = canvas.parentElement;
-                canvas.width = container.clientWidth;
-                canvas.height = container.clientHeight;
-                
-                if (imageCaptured) {
-                    drawImage();
-                }
+            const description = document.getElementById('image-description').value;
+            const file = imageUpload.files[0];
+            
+            if (!file || !description) {
+                alert('Por favor, completa todos los campos');
+                return;
             }
             
-            // Activar la cámara
-            startCameraBtn.addEventListener('click', async () => {
-                try {
-                    stream = await navigator.mediaDevices.getUserMedia({ 
-                        video: { facingMode: 'environment' } 
-                    });
-                    video.srcObject = stream;
-                    video.classList.remove('hidden');
-                    cameraPlaceholder.classList.add('hidden');
-                    captureBtn.disabled = false;
-                    startCameraBtn.disabled = true;
-                    
-                    video.addEventListener('loadedmetadata', () => {
-                        resizeCanvas();
-                    });
-                } catch (err) {
-                    alert('Error al acceder a la cámara: ' + err.message);
-                    console.error('Error al acceder a la cámara:', err);
-                }
-            });
+            // En un entorno real, aquí subirías la imagen a Firebase Storage
+            // y guardarías la URL en la base de datos junto con la descripción
             
-            // Tomar foto
-            captureBtn.addEventListener('click', () => {
-                if (stream) {
-                    const container = canvas.parentElement;
-                    const width = container.clientWidth;
-                    const height = container.clientHeight;
-                    
-                    // Detener la cámara
-                    stream.getTracks().forEach(track => track.stop());
-                    video.classList.add('hidden');
-                    
-                    // Dibujar la imagen en el canvas
-                    ctx.drawImage(video, 0, 0, width, height);
-                    imageCaptured = true;
-                    
-                    // Limpiar puntos anteriores
-                    pointA = null;
-                    pointB = null;
-                    clearFibonacciLines();
-                    
-                    // Actualizar interfaz
-                    captureBtn.disabled = true;
-                    startCameraBtn.disabled = false;
-                }
-            });
-            
-            // Reiniciar cámara
-            resetCameraBtn.addEventListener('click', () => {
-                if (stream) {
-                    stream.getTracks().forEach(track => track.stop());
-                }
-                
-                video.srcObject = null;
-                video.classList.add('hidden');
-                cameraPlaceholder.classList.remove('hidden');
-                
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                imageCaptured = false;
-                
-                pointA = null;
-                pointB = null;
-                clearFibonacciLines();
-                resetLevelsDisplay();
-                
-                captureBtn.disabled = true;
-                startCameraBtn.disabled = false;
-            });
-            
-            // Manejar clics en el canvas
-            canvas.addEventListener('click', (e) => {
-                if (!imageCaptured) return;
-                
-                const rect = canvas.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                
-                if (!pointA) {
-                    pointA = { x, y };
-                    drawPoint(pointA, '#00d4ff');
-                } else if (!pointB) {
-                    pointB = { x, y };
-                    drawPoint(pointB, '#00ff9d');
-                    drawLineBetweenPoints(pointA, pointB);
-                    calculateFibonacciLevels();
-                } else {
-                    // Si ya hay dos puntos, reiniciar con nuevo punto A
-                    pointA = { x, y };
-                    pointB = null;
-                    drawImage();
-                }
-            });
-            
-            // Dibujar imagen en el canvas
-            function drawImage() {
-                const container = canvas.parentElement;
-                const width = container.clientWidth;
-                const height = container.clientHeight;
-                
-                // Limpiar canvas
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
-                // Redibujar puntos si existen
-                if (pointA) {
-                    drawPoint(pointA, '#00d4ff');
-                }
-                if (pointB) {
-                    drawPoint(pointB, '#00ff9d');
-                }
-                if (pointA && pointB) {
-                    drawLineBetweenPoints(pointA, pointB);
-                    calculateFibonacciLevels();
-                }
-            }
-            
-            // Dibujar un punto en el canvas
-            function drawPoint(point, color) {
-                ctx.beginPath();
-                ctx.arc(point.x, point.y, 6, 0, Math.PI * 2);
-                ctx.fillStyle = color;
-                ctx.fill();
-                ctx.strokeStyle = 'white';
-                ctx.lineWidth = 2;
-                ctx.stroke();
-            }
-            
-            // Dibujar línea entre puntos
-            function drawLineBetweenPoints(a, b) {
-                ctx.beginPath();
-                ctx.moveTo(a.x, a.y);
-                ctx.lineTo(b.x, b.y);
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
-                ctx.lineWidth = 2;
-                ctx.stroke();
-            }
-            
-            // Calcular niveles Fibonacci
-            function calculateFibonacciLevels() {
-                if (!pointA || !pointB) return;
-                
-                const diffX = pointB.x - pointA.x;
-                const diffY = pointB.y - pointA.y;
-                
-                // Niveles de retroceso Fibonacci (porcentajes)
-                const levels = {
-                    '236': 0.236,
-                    '382': 0.382,
-                    '500': 0.5,
-                    '618': 0.618,
-                    '786': 0.786,
-                    '100': 1.0,
-                    '1618': 1.618
+            // Para esta demo, usaremos URLs locales
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imageData = {
+                    id: Date.now(),
+                    url: e.target.result,
+                    description: description,
+                    timestamp: new Date().toLocaleString()
                 };
                 
-                // Calcular y mostrar valores
-                Object.keys(levels).forEach(level => {
-                    const percentage = levels[level];
-                    const value = isInverted ? 
-                        (pointA.y + diffY * percentage).toFixed(2) : 
-                        (pointA.y - diffY * percentage).toFixed(2);
-                    
-                    document.getElementById(level-${level}).textContent = value;
-                });
+                imagesData.push(imageData);
+                localStorage.setItem('beaverTradingImages', JSON.stringify(imagesData));
                 
-                document.getElementById('level-0').textContent = pointA.y.toFixed(2);
-                
-                // Calcular Take Profit y Stop Loss basados en 161.8%
-                const tpValue = isInverted ? 
-                    (pointA.y + diffY * 1.618).toFixed(2) : 
-                    (pointA.y - diffY * 1.618).toFixed(2);
-                
-                const slValue = isInverted ? 
-                    (pointA.y - diffY * 0.618).toFixed(2) : 
-                    (pointA.y + diffY * 0.618).toFixed(2);
-                
-                document.getElementById('tp-value').textContent = tpValue;
-                document.getElementById('sl-value').textContent = slValue;
-                
-                // Dibujar líneas de Fibonacci
-                drawFibonacciLines(diffY);
-            }
-            
-            // Dibujar líneas de Fibonacci en el canvas
-            function drawFibonacciLines(diffY) {
-                // Limpiar líneas anteriores
-                clearFibonacciLines();
-                
-                const levels = [0, 0.236, 0.382, 0.5, 0.618, 0.786, 1, 1.618];
-                const colors = [
-                    '#00d4ff', '#ff006e', '#ffbe0b', '#00ff9d', 
-                    '#8338ec', '#fb5607', '#3a86ff', '#ff006e'
-                ];
-                
-                const startX = 0;
-                const endX = canvas.width;
-                
-                levels.forEach((level, index) => {
-                    const y = isInverted ? 
-                        pointA.y + diffY * level : 
-                        pointA.y - diffY * level;
-                    
-                    const line = document.createElement('div');
-                    line.className = 'fib-line';
-                    line.style.top = ${y}px;
-                    line.style.backgroundColor = colors[index];
-                    
-                    const label = document.createElement('div');
-                    label.className = 'fib-label';
-                    label.textContent = ${level * 100}%;
-                    label.style.top = ${y}px;
-                    label.style.color = colors[index];
-                    
-                    line.appendChild(label);
-                    fibLines.appendChild(line);
-                });
-            }
-            
-            // Limpiar líneas de Fibonacci
-            function clearFibonacciLines() {
-                while (fibLines.firstChild) {
-                    fibLines.removeChild(fibLines.firstChild);
-                }
-            }
-            
-            // Reiniciar visualización de niveles
-            function resetLevelsDisplay() {
-                document.querySelectorAll('.level-value').forEach(el => {
-                    el.textContent = '-';
-                });
-            }
-            
-            // Botón de análisis
-            analyzeBtn.addEventListener('click', () => {
-                if (pointA && pointB) {
-                    calculateFibonacciLevels();
-                } else {
-                    alert('Por favor, selecciona primero los puntos A y B en el gráfico.');
-                }
-            });
-            
-            // Invertir retrocesos
-            invertBtn.addEventListener('click', () => {
-                isInverted = !isInverted;
-                if (pointA && pointB) {
-                    calculateFibonacciLevels();
-                }
-            });
-            
-            // Reiniciar puntos
-            resetPointsBtn.addEventListener('click', () => {
-                pointA = null;
-                pointB = null;
-                clearFibonacciLines();
-                drawImage();
-                resetLevelsDisplay();
-            });
-            
-            // Inicializar
-            window.addEventListener('resize', resizeCanvas);
-            resizeCanvas();
-            
-            // Dibujar canvas inicial
-            ctx.fillStyle = 'rgba(20, 30, 50, 0.9)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = 'rgba(0, 212, 255, 0.2)';
-            ctx.font = '16px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('Activa la cámara y toma una foto para comenzar', canvas.width / 2, canvas.height / 2);
+                renderImages();
+                uploadForm.reset();
+                fileLabel.innerHTML = '<span>Haz clic para seleccionar una imagen o arrástrala aquí</span>';
+            };
+            reader.readAsDataURL(file);
         });
+        
+        // Renderizar imágenes
+        function renderImages() {
+            imagesContainer.innerHTML = '';
+            
+            imagesData.forEach(image => {
+                const imageCard = document.createElement('div');
+                imageCard.className = 'image-card';
+                imageCard.dataset.id = image.id;
+                
+                imageCard.innerHTML = `
+                    <div class="image-wrapper">
+                        <img src="${image.url}" alt="Estrategia de trading" draggable="false">
+                    </div>
+                    <div class="image-content">
+                        <p class="image-description">${image.description}</p>
+                        <div class="image-actions">
+                            <button class="action-btn view-btn">
+                                <span>Ver imagen</span>
+                            </button>
+                            <button class="action-btn delete-btn">
+                                <span>Eliminar</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                imagesContainer.appendChild(imageCard);
+                
+                // Eventos para los botones
+                const viewBtn = imageCard.querySelector('.view-btn');
+                const deleteBtn = imageCard.querySelector('.delete-btn');
+                const img = imageCard.querySelector('img');
+                
+                viewBtn.addEventListener('click', () => {
+                    expandedImage.src = image.url;
+                    imageModal.style.display = 'flex';
+                });
+                
+                deleteBtn.addEventListener('click', () => {
+                    if (confirm('¿Estás seguro de que quieres eliminar esta imagen?')) {
+                        imagesData = imagesData.filter(img => img.id !== image.id);
+                        localStorage.setItem('beaverTradingImages', JSON.stringify(imagesData));
+                        renderImages();
+                    }
+                });
+                
+                // Hacer la imagen arrastrable
+                let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+                img.addEventListener('mousedown', dragMouseDown);
+                
+                function dragMouseDown(e) {
+                    e.preventDefault();
+                    // Obtener la posición del ratón
+                    pos3 = e.clientX;
+                    pos4 = e.clientY;
+                    
+                    document.addEventListener('mouseup', closeDragElement);
+                    document.addEventListener('mousemove', elementDrag);
+                    
+                    imageCard.classList.add('glow-effect');
+                }
+                
+                function elementDrag(e) {
+                    e.preventDefault();
+                    // Calcular la nueva posición
+                    pos1 = pos3 - e.clientX;
+                    pos2 = pos4 - e.clientY;
+                    pos3 = e.clientX;
+                    pos4 = e.clientY;
+                    
+                    // Establecer la nueva posición
+                    imageCard.style.position = 'absolute';
+                    imageCard.style.zIndex = '1000';
+                    imageCard.style.top = (imageCard.offsetTop - pos2) + "px";
+                    imageCard.style.left = (imageCard.offsetLeft - pos1) + "px";
+                }
+                
+                function closeDragElement() {
+                    // Detener el movimiento cuando se suelta el ratón
+                    document.removeEventListener('mouseup', closeDragElement);
+                    document.removeEventListener('mousemove', elementDrag);
+                    
+                    imageCard.classList.remove('glow-effect');
+                    
+                    // Después de 2 segundos, quitar el posicionamiento absoluto
+                    setTimeout(() => {
+                        imageCard.style.position = '';
+                        imageCard.style.top = '';
+                        imageCard.style.left = '';
+                        imageCard.style.zIndex = '';
+                    }, 2000);
+                }
+            });
+        }
+        
+        // Cerrar modal
+        closeModal.addEventListener('click', () => {
+            imageModal.style.display = 'none';
+        });
+        
+        // Cargar imágenes al iniciar
+        renderImages();
     </script>
 </body>
 </html>
